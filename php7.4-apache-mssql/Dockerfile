@@ -1,0 +1,53 @@
+FROM php:7.4-apache
+
+MAINTAINER javier.tapia@sipp.cl
+
+RUN apt-get update && apt-get install -y \
+    unixodbc unixodbc-dev freetds-dev freetds-bin freetds-common tdsodbc curl gnupg \
+    libonig-dev libmcrypt-dev \
+    libpng-dev libfreetype6-dev libwebp-dev libjpeg62-turbo-dev \
+    zlib1g-dev libicu-dev libzip-dev \
+    g++ gcc make autoconf libc-dev pkg-config \
+    ghostscript
+
+RUN apt-get -y autoremove && apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/tmp/* /usr/share/doc/*
+
+# Config system
+
+RUN rm /etc/localtime \
+    && ln -s /usr/share/zoneinfo/America/Santiago /etc/localtime \
+    && "date"
+
+RUN ln -s /usr/lib/aarch64-linux-gnu/libsybdb.so /usr/lib/
+
+# PHP Extensions
+RUN docker-php-ext-install -j$(nproc) iconv mysqli mbstring intl pdo pdo_mysql zip
+RUN docker-php-ext-enable intl mbstring
+
+RUN docker-php-ext-configure pdo_dblib --with-libdir=lib
+RUN docker-php-ext-install -j$(nproc) pdo_dblib
+RUN docker-php-ext-enable pdo_dblib
+
+RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp
+RUN docker-php-ext-enable intl mbstring
+RUN cd /usr/src/php/ext/gd && make
+RUN cp /usr/src/php/ext/gd/modules/gd.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/gd.so
+RUN docker-php-ext-install -j$(nproc) gd
+
+# xdebug
+ARG WITH_XDEBUG=false
+RUN if [ $WITH_XDEBUG = "true" ] ; then \
+        pecl install xdebug; \
+        docker-php-ext-enable xdebug; \
+    fi;
+
+# install Composer
+RUN curl -sS https://getcomposer.org/installer | php
+RUN mv composer.phar /usr/local/bin/composer
+ENV PATH /root/.composer/vendor/bin:$PATH
+
+RUN a2enmod rewrite
+
+EXPOSE 80 443
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]

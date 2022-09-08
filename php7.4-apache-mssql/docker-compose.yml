@@ -1,0 +1,47 @@
+version: '3.2'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge # this SqlServer run in Apple M1
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Testing!"
+      MSSQL_PID: "Developer"
+    volumes:
+      - ./mssql/data:/var/opt/mssql/data
+      - ./mssql/log:/var/opt/mssql/log
+      - ./mssql/secrets:/var/opt/mssql/secrets
+      - ./mssql/backup:/var/opt/mssql/backup
+    restart: "no"
+  auth:
+    image: javiertapia/php7.4-apache-mssql
+    ports:
+      - "8059:80"
+    expose:
+      - 80
+    volumes:
+      - ./:/www
+      - ./.docker/apache-auth.conf:/etc/apache2/sites-available/000-default.conf
+      - ./.docker/php-custom.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./.docker/php-xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    links:
+      - mssql
+  frontend:
+    image: javiertapia/php7.4-apache-mssql
+    ports:
+      - "8060:80"
+    expose:
+      - 80
+    volumes:
+      - ./:/www
+      - ./.docker/apache-frontend.conf:/etc/apache2/sites-available/000-default.conf
+      - ./.docker/php-custom.ini:/usr/local/etc/php/php.ini
+      - ./.docker/php-xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    environment:
+      TZ: America/Santiago
+      PHP_MEMORY_LIMIT: 128M
+      XDEBUG_SESSION: PHPSTORM
+    links:
+      - mssql
