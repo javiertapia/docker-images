@@ -1,0 +1,48 @@
+version: '3.7'
+
+volumes:
+  logs:
+    driver: local
+
+services:
+  database:
+    image: mysql/mysql-server:8.0 # this can run in Apple M1 machines
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/car/lib/mysql # persistent mysql storage
+    environment:
+      MYSQL_DATABASE: dbname
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbpass
+      MYSQL_ROOT_PASSWORD: root
+  php:
+    image: javiertapia/php8.1-fpm-mysql
+    environment:
+      PHP_MEMORY_LIMIT: '128M'
+    volumes:
+      - .:/var/www/html
+      - files/php.ini:/usr/local/etc/php/php.ini
+      - files/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    links:
+      - db
+  api:
+    image: httpd:2.4.46-alpine
+    ports:
+      - "8087:80"
+    volumes:
+      - api:/var/www/api
+      - files/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - files/httpd-api.conf:/usr/local/apache2/conf/web.apache.conf
+    links:
+      - php
+  frontend:
+    image: httpd:2.4.46-alpine
+    ports:
+      - "8087:80"
+    volumes:
+      - frontend:/var/www/frontend
+      - files/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - files/httpd-frontend.conf:/usr/local/apache2/conf/web.apache.conf
+    links:
+      - php
