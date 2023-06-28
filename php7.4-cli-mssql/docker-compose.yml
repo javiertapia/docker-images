@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    volumes:
+      - .:/app
+      - ./files/php.ini:/usr/local/etc/php/php.ini
+
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge # MacOs Silicon host
+    # image: mcr.microsoft.com/mssql/server:2017-latest # x64 host
+    ports:
+      - "2433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Testing!" # azure-sql-edge
+      # SA_PASSWORD: "Testing!" # mssql/server
+      MSSQL_PID: "Developer"
+    volumes:
+      - ./mssql/backup:/var/opt/mssql/backup
+      - ./mssql/log:/var/opt/mssql/log
+      - ./mssql/secrets:/var/opt/mssql/secrets
+      - ./mssql/data:/var/opt/mssql/data

@@ -17,6 +17,7 @@ docker build -t <dir-name> .
 
 - [x] PHP8.1-FPM + Mysql support
 - [x] PHP7.4 + Apache + MsSQL(DBLIB) support
+- [x] PHP7.4 CLI + MsSQL(DBLIB) support
 - [x] PHP7.1 + Apache + MsSQL(DBLIB) support
 - [ ] Node + Angular CLI development environment
 - [ ] Nginx Angular production
