@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  rrhh:
+    image: javiertapia/php7.1-apache-mssql
+    environment:
+      XDEBUG_CONFIG: remote_host=host.internal.docker remote_port=9001 idekey=PHPSTORM
+    volumes:
+      - ./proyecto:/var/www/html
+      - ./files/php.ini:/usr/local/etc/php/php.ini
+      - ./files/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./files/apache.conf:/etc/apache2/sites-available/000-default.conf
+    ports:
+      - "0.0.0.0:7050:80"
+
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge # MacOs Silicon host
+    # image: mcr.microsoft.com/mssql/server:2017-latest # x64 host
+    ports:
+      - "5450:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Testing!" # azure-sql-edge
+      # SA_PASSWORD: "Testing!" # mssql/server
+      MSSQL_PID: "Developer"
+    volumes:
+      - ./mssql/backup:/var/opt/mssql/backup
+      - ./mssql/log:/var/opt/mssql/log
+      - ./mssql/secrets:/var/opt/mssql/secrets
+      - ./mssql/data:/var/opt/mssql/data
