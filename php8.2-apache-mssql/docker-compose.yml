@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  web:
+    image: javiertapia/php8.2-apache-mssql
+    volumes:
+      - .:/app
+      - ./files/php.ini:/usr/local/etc/php/php.ini
+    
