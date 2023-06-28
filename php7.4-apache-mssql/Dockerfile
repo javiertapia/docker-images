@@ -1,6 +1,6 @@
 FROM php:7.4-apache
 
-MAINTAINER javier.tapia@sipp.cl
+# MAINTAINER javier.tapia@sipp.cl
 
 RUN apt-get update && apt-get install -y \
     unixodbc unixodbc-dev freetds-dev freetds-bin freetds-common tdsodbc curl gnupg \
@@ -36,11 +36,8 @@ RUN cp /usr/src/php/ext/gd/modules/gd.so /usr/local/lib/php/extensions/no-debug-
 RUN docker-php-ext-install -j$(nproc) gd
 
 # xdebug
-ARG WITH_XDEBUG=false
-RUN if [ $WITH_XDEBUG = "true" ] ; then \
-        pecl install xdebug; \
-        docker-php-ext-enable xdebug; \
-    fi;
+RUN pecl install xdebug
+RUN docker-php-ext-enable xdebug
 
 # install Composer
 RUN curl -sS https://getcomposer.org/installer | php

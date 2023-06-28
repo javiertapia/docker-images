@@ -16,7 +16,7 @@ docker build -t javiertapia/php7.4-apache-mssql .
 
 ## Usage aside many services
 
-In the following docker-compose.yml example, this Dockerfile is used as a base of many services. This allow re-utilize the code, withoout increase disk space due duplication.
+In the following docker-compose.yml example, this Dockerfile is used as a base of many services. This allow re-utilize the code, without increase disk space due duplication.
 
 ```yaml
 version: '3.2'
