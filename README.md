@@ -15,6 +15,7 @@ docker build -t <dir-name> .
 
 ## TODO
 
+- [x] PHP8.3 + Apache + MsSQL(DBLIB) support
 - [x] PHP8.2 + Apache + MsSQL(DBLIB) support
 - [x] PHP8.1-FPM + Mysql support
 - [x] PHP7.4 + Apache + MsSQL(DBLIB) support
